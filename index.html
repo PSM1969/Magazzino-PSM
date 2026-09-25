@@ -8,10 +8,10 @@
         :root {
             --primary: #2563eb;
             --primary-dark: #1d4ed8;
-            --bg-color: #f8fafc;
+            --bg-color: #fef08a;
             --card-bg: #ffffff;
-            --text-main: #0f172a;
-            --text-muted: #64748b;
+            --text-main: #1e40af;
+            --text-muted: #1d4ed8;
             --border: #cbd5e1;
             --danger: #ef4444;
             --success: #10b981;
@@ -214,9 +214,12 @@
                     <select id="sport-filter" class="form-control" onchange="renderConsegna()">
                         <option value="ALL">Tutte le Discipline</option>
                         <option value="Calcio">Calcio</option>
-                        <option value="Tai-Chi">Tai-Chi</option>
+                        <option value="Pallavolo">Pallavolo</option>
+                        <option value="Minivolley">Minivolley</option>
+                        <option value="Atletica">Atletica</option>
+                        <option value="Danza">Danza</option>
                         <option value="Pilates">Pilates</option>
-                        <option value="Staff">Staff / Dirigenza</option>
+                        <option value="Tai Chi">Tai Chi</option>
                     </select>
                 </div>
                 <div class="form-group" style="margin-bottom:0;">
@@ -273,9 +276,12 @@
                     <label for="settings-sport-select">SELEZIONA SPORT:</label>
                     <select id="settings-sport-select" class="form-control" onchange="renderSportAssignments()">
                         <option value="Calcio">Calcio</option>
-                        <option value="Tai-Chi">Tai-Chi</option>
+                        <option value="Pallavolo">Pallavolo</option>
+                        <option value="Minivolley">Minivolley</option>
+                        <option value="Atletica">Atletica</option>
+                        <option value="Danza">Danza</option>
                         <option value="Pilates">Pilates</option>
-                        <option value="Staff">Staff / Dirigenza</option>
+                        <option value="Tai Chi">Tai Chi</option>
                     </select>
                 </div>
                 <div id="sport-assignments" class="checkbox-grid"></div>
@@ -392,9 +398,12 @@
         let historyLogs = [];
         let sportAssignments = JSON.parse(localStorage.getItem('sportAssignments')) || {
             "Calcio": ["T-Shirt Adulto", "Felpa Adulto", "Tuta Completa", "K-Way", "Calze Blu", "Calze Azzurre", "Zaino", "Borsa Media"],
-            "Tai-Chi": ["T-Shirt Tai-Chi", "Pile Tai-Chi"],
+            "Pallavolo": ["T-Shirt Adulto", "Felpa Adulto", "Tuta Completa", "K-Way", "Zaino"],
+            "Minivolley": ["T-Shirt Bimbo", "Felpa Bimbo", "Zaino"],
+            "Atletica": ["T-Shirt Adulto", "Panta Uomo", "Panta Donna", "K-Way"],
+            "Danza": ["T-Shirt Bimbo", "Panta Donna"],
             "Pilates": ["Pile Pilates"],
-            "Staff": ["Polo Staff", "Bermuda Staff"]
+            "Tai Chi": ["T-Shirt Tai-Chi", "Pile Tai-Chi"]
         };
         let currentRecipient = "";
 
