@@ -220,6 +220,7 @@
                         <option value="Danza">Danza</option>
                         <option value="Pilates">Pilates</option>
                         <option value="Tai Chi">Tai Chi</option>
+                        <option value="Tai Chi">Staff</option>
                     </select>
                 </div>
                 <div class="form-group" style="margin-bottom:0;">
@@ -282,6 +283,7 @@
                         <option value="Danza">Danza</option>
                         <option value="Pilates">Pilates</option>
                         <option value="Tai Chi">Tai Chi</option>
+                        <option value="Tai Chi">Staff</option>
                     </select>
                 </div>
                 <div id="sport-assignments" class="checkbox-grid"></div>
@@ -403,7 +405,8 @@
             "Atletica": ["T-Shirt Adulto", "Panta Uomo", "Panta Donna", "K-Way"],
             "Danza": ["T-Shirt Bimbo", "Panta Donna"],
             "Pilates": ["Pile Pilates"],
-            "Tai Chi": ["T-Shirt Tai-Chi", "Pile Tai-Chi"]
+            "Tai Chi": ["T-Shirt Tai-Chi", "Pile Tai-Chi"],
+            "Staff": ["Tuta Completa"]
         };
         let currentRecipient = "";
 
@@ -488,42 +491,119 @@
             renderAll();
         }
 
-        function renderConsegna() {
+       function renderConsegna() {
             const container = document.getElementById("consegna-list");
             const isDisabled = !currentRecipient;
             const selectedSport = document.getElementById("sport-filter").value;
 
+            // 1. Filtra gli articoli in base allo sport selezionato
             let filtered = inventory;
             if (selectedSport !== "ALL" && sportAssignments[selectedSport]) {
                 filtered = inventory.filter(i => sportAssignments[selectedSport].includes(i.name));
             }
 
-            container.innerHTML = filtered.map(item => `
-                <div class="item-row">
-                    <div class="item-info">
-                        <div class="item-title">${item.name}</div>
-                        <div class="item-subtitle">Taglia: ${item.size} | Disponibili: <strong>${item.qty}</strong></div>
-                    </div>
-                    <div class="qty-controls">
-                        <button class="btn-qty minus" ${isDisabled || item.qty <= 0 ? 'disabled' : ''} onclick="deliverItem(${item.id})">−</button>
-                    </div>
-                </div>
-            `).join('');
+            if (filtered.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-muted); font-size:0.95rem; padding: 10px 0;">Nessun articolo abbinato a questa disciplina.</p>';
+                return;
+            }
+
+            // 2. Raggruppa gli articoli per Nome Prodotto (es. "T-Shirt Adulto", "K-Way", ecc.)
+            const groupedByProduct = {};
+            filtered.forEach(item => {
+                if (!groupedByProduct[item.name]) {
+                    groupedByProduct[item.name] = [];
+                }
+                groupedByProduct[item.name].push(item);
+            });
+
+            // 3. Genera l'HTML con i menu a scomparsa (<details>) per ogni prodotto
+            let html = "";
+            for (let [productName, items] of Object.entries(groupedByProduct)) {
+                // Calcola la giacenza totale di quel prodotto per tutte le taglie
+                let totalQty = items.reduce((sum, i) => sum + i.qty, 0);
+
+                html += `
+                    <details style="margin-bottom: 12px; border: 2px solid var(--border); border-radius: 10px; background: white; padding: 8px 12px;">
+                        <summary style="font-weight: 800; font-size: 1.15rem; color: var(--text-main); cursor: pointer; padding: 6px 0; display: flex; justify-content: space-between; align-items: center;">
+                            <span>👕 ${productName}</span>
+                            <span style="font-size: 0.9rem; font-weight: 700; color: var(--primary);">
+                                Totale pz: ${totalQty}
+                            </span>
+                        </summary>
+                        <div style="margin-top: 8px; border-top: 1px solid var(--border); padding-top: 6px;">
+                            ${items.map(item => `
+                                <div class="item-row">
+                                    <div class="item-info">
+                                        <div class="item-title">Taglia: ${item.size}</div>
+                                        <div class="item-subtitle">Disponibili: <strong>${item.qty}</strong></div>
+                                    </div>
+                                    <div class="qty-controls">
+                                        <button class="btn-qty minus" ${isDisabled \vert{}\vert{} item.qty <= 0 ? 'disabled' : ''} onclick="deliverItem(${item.id})">−</button>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </details>
+                `;
+            }
+
+            container.innerHTML = html;
         }
 
         function renderGiacenze() {
-            document.getElementById("giacenze-list").innerHTML = inventory.map(item => `
-                <div class="item-row">
-                    <div class="item-info">
-                        <div class="item-title">${item.name} (${item.size})</div>
-                    </div>
-                    <div class="qty-controls">
-                        <button class="btn-qty" onclick="changeQty(${item.id}, -1)">-</button>
-                        <span class="qty-input" style="display:flex; align-items:center; justify-content:center;">${item.qty}</span>
-                        <button class="btn-qty" onclick="changeQty(${item.id}, 1)">+</button>
-                    </div>
-                </div>
-            `).join('');
+            const container = document.getElementById("giacenze-list");
+            
+            // Definiamo i gruppi e come associare i prodotti
+            const groups = {
+                "👕 T-Shirt & Polo": item => item.name.toLowerCase().includes("t-shirt") || item.name.toLowerCase().includes("polo"),
+                "🩳 Pantaloni & Bermuda": item => item.name.toLowerCase().includes("panta") || item.name.toLowerCase().includes("bermuda"),
+                "🧥 Felpe & Pile": item => item.name.toLowerCase().includes("felpa") || item.name.toLowerCase().includes("pile"),
+                "🏃 Tute": item => item.name.toLowerCase().includes("tuta"),
+                "🌧️ K-Way & Giacche": item => item.name.toLowerCase().includes("k-way") || item.name.toLowerCase().includes("100 gr"),
+                "🎒 Accessori & Borse": item => item.name.toLowerCase().includes("calze") || item.name.toLowerCase().includes("zaino") || item.name.toLowerCase().includes("borsa"),
+                "📦 Altro": () => true // Categoria di fallback
+            };
+
+            let html = "";
+
+            for (let [groupTitle, filterFn] of Object.entries(groups)) {
+                // Filtra gli articoli appartenenti a questo gruppo
+                let groupItems = inventory.filter(item => {
+                    if (item._assigned) return false;
+                    let match = filterFn(item);
+                    if (match) item._assigned = true;
+                    return match;
+                });
+
+                if (groupItems.length > 0) {
+                    html += `
+                        <details style="margin-bottom: 12px; border: 2px solid var(--border); border-radius: 10px; background: white; padding: 8px 12px;">
+                            <summary style="font-weight: 800; font-size: 1.15rem; color: var(--primary); cursor: pointer; padding: 6px 0;">
+                                ${groupTitle} (${groupItems.length})
+                            </summary>
+                            <div style="margin-top: 8px; border-top: 1px solid var(--border); padding-top: 6px;">
+                                ${groupItems.map(item => `
+                                    <div class="item-row">
+                                        <div class="item-info">
+                                            <div class="item-title">${item.name} (${item.size})</div>
+                                        </div>
+                                        <div class="qty-controls">
+                                            <button class="btn-qty" onclick="changeQty(${item.id}, -1)">-</button>
+                                            <span class="qty-input" style="display:flex; align-items:center; justify-content:center;">${item.qty}</span>
+                                            <button class="btn-qty" onclick="changeQty(${item.id}, 1)">+</button>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </details>
+                    `;
+                }
+            }
+
+            // Pulisci il flag temporaneo di assegnazione
+            inventory.forEach(i => delete i._assigned);
+
+            container.innerHTML = html;
         }
 
         function renderOrdini() {
