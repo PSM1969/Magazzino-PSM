@@ -1,568 +1,592 @@
-* { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-    body { background-color: var(--bg-color); color: var(--text-main); padding-bottom: 95px; }
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magazzino Sportivo</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+            --border: #cbd5e1;
+            --danger: #ef4444;
+            --success: #10b981;
+        }
 
-    header {
-        background-color: var(--primary);
-        color: white;
-        padding: 16px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-    }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding-bottom: 100px; }
 
-    header h1 { font-size: 1.4rem; font-weight: 800; }
-    .sync-badge { font-size: 0.85rem; background: rgba(255,255,255,0.25); padding: 6px 12px; border-radius: 20px; font-weight: 600; }
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
 
-    .container { padding: 16px; max-width: 650px; margin: 0 auto; }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
+        header h1 { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; }
+        .sync-badge { font-size: 0.85rem; background: rgba(255,255,255,0.25); padding: 6px 12px; border-radius: 20px; font-weight: 700; }
 
-    .card {
-        background: var(--card-bg);
-        border-radius: 14px;
-        padding: 18px;
-        margin-bottom: 16px;
-        border: 1px solid var(--border);
-        box-shadow: 0 2px 4px rgba(0,0,0,0.04);
-    }
+        .container { padding: 16px; max-width: 650px; margin: 0 auto; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
 
-    /* Titoli grandi delle sezioni */
-    .section-title {
-        font-size: 1.4rem;
-        font-weight: 800;
-        color: var(--text-main);
-        margin-bottom: 12px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-    }
+        .card {
+            background: var(--card-bg);
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 16px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.04);
+        }
 
-    .form-group { margin-bottom: 14px; }
-    .form-group label { display: block; font-size: 1rem; font-weight: 700; margin-bottom: 6px; color: var(--text-main); }
-    .form-control {
-        width: 100%;
-        padding: 12px;
-        border: 1px solid var(--border);
-        border-radius: 10px;
-        font-size: 1.05rem;
-        outline: none;
-        background: white;
-    }
+        /* Titoli grandi delle sezioni */
+        .section-title {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 14px;
+            text-transform: uppercase;
+            letter-spacing: -0.3px;
+        }
 
-    .item-row {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 12px 0;
-        border-bottom: 1px solid var(--border);
-    }
-    .item-row:last-child { border-bottom: none; }
+        .form-group { margin-bottom: 14px; }
+        .form-group label { display: block; font-size: 1.05rem; font-weight: 700; margin-bottom: 6px; color: var(--text-main); }
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 1.05rem;
+            outline: none;
+            background: white;
+        }
 
-    .item-info { flex: 1; padding-right: 10px; }
-    .item-title { font-weight: 700; font-size: 1.05rem; }
-    .item-subtitle { font-size: 0.9rem; color: var(--text-muted); margin-top: 2px; }
+        .item-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .item-row:last-child { border-bottom: none; }
 
-    .qty-controls { display: flex; align-items: center; gap: 8px; }
-    
-    .btn-qty {
-        width: 44px;
-        height: 44px;
-        border-radius: 10px;
-        border: 1px solid var(--border);
-        background: white;
-        font-size: 1.4rem;
-        font-weight: bold;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        cursor: pointer;
-        touch-action: manipulation;
-    }
+        .item-info { flex: 1; padding-right: 10px; }
+        .item-title { font-weight: 800; font-size: 1.1rem; }
+        .item-subtitle { font-size: 0.95rem; color: var(--text-muted); margin-top: 2px; }
 
-    .btn-qty.minus { color: var(--danger); border-color: #fca5a5; }
-    .btn-qty.plus { color: var(--success); border-color: #6ee7b7; }
-    .btn-qty:disabled { opacity: 0.25; cursor: not-allowed; }
+        .qty-controls { display: flex; align-items: center; gap: 8px; }
+        .btn-qty {
+            width: 48px;
+            height: 48px;
+            border-radius: 10px;
+            border: 2px solid var(--border);
+            background: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            touch-action: manipulation;
+        }
 
-    .qty-input {
-        width: 52px;
-        text-align: center;
-        font-size: 1.1rem;
-        font-weight: bold;
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 6px;
-    }
+        .btn-qty.minus { color: var(--danger); border-color: #fca5a5; }
+        .btn-qty.plus { color: var(--success); border-color: #6ee7b7; }
+        .btn-qty:disabled { opacity: 0.25; cursor: not-allowed; }
 
-    /* NAVIGATION BAR IN BASSO ENORME */
-    .nav-tabs {
-        display: flex;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: var(--card-bg);
-        border-top: 2px solid var(--border);
-        z-index: 100;
-        height: 80px;
-        box-shadow: 0 -3px 10px rgba(0,0,0,0.08);
-    }
+        .qty-input {
+            width: 55px;
+            height: 48px;
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 800;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+        }
 
-    .tab-btn {
-        flex: 1;
-        padding: 8px 2px;
-        border: none;
-        background: none;
-        color: var(--text-muted);
-        font-size: 0.95rem;
-        font-weight: 700;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        gap: 4px;
-        cursor: pointer;
-        transition: all 0.1s ease;
-    }
+        /* BARRA DI NAVIGAZIONE IN BASSO ENORME */
+        .nav-tabs {
+            display: flex;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card-bg);
+            border-top: 2px solid var(--border);
+            z-index: 100;
+            height: 85px;
+            box-shadow: 0 -3px 12px rgba(0,0,0,0.1);
+        }
 
-    .tab-btn.active {
-        color: var(--primary);
-        background: #eff6ff;
-        border-top: 4px solid var(--primary);
-    }
+        .tab-btn {
+            flex: 1;
+            padding: 8px 2px;
+            border: none;
+            background: none;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            font-weight: 800;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            cursor: pointer;
+        }
 
-    .tab-btn svg { width: 28px; height: 28px; fill: currentColor; }
+        .tab-btn.active {
+            color: var(--primary);
+            background: #eff6ff;
+            border-top: 4px solid var(--primary);
+        }
 
-    .history-item { margin-bottom: 12px; border-left: 4px solid var(--primary); padding-left: 12px; }
-    .history-date { font-size: 0.8rem; color: var(--text-muted); }
-    .history-person { font-weight: 800; font-size: 1rem; }
-    .history-details { font-size: 0.95rem; margin-top: 2px; }
+        .tab-btn svg { width: 30px; height: 30px; fill: currentColor; }
 
-    .checkbox-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-        gap: 10px;
-        margin-top: 10px;
-    }
-    .checkbox-item {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 0.95rem;
-        font-weight: 600;
-        background: #f1f5f9;
-        padding: 10px 12px;
-        border-radius: 8px;
-    }
+        .history-item { margin-bottom: 12px; border-left: 4px solid var(--primary); padding-left: 12px; }
+        .history-date { font-size: 0.85rem; color: var(--text-muted); }
+        .history-person { font-weight: 800; font-size: 1.05rem; }
+        .history-details { font-size: 1rem; margin-top: 2px; }
 
-    .btn-action {
-        background: var(--primary);
-        color: white;
-        border: none;
-        padding: 12px 16px;
-        border-radius: 8px;
-        font-size: 1rem;
-        font-weight: 700;
-        cursor: pointer;
-        width: 100%;
-    }
+        .checkbox-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
 
-    .badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: 700; }
-    .badge-warning { background: #fef3c7; color: #92400e; }
-    .badge-info { background: #e0f2fe; color: #0369a1; }
-</style>
+        .checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            background: #f1f5f9;
+            padding: 10px 12px;
+            border-radius: 8px;
+        }
 
+        .btn-action {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 16px;
+            border-radius: 10px;
+            font-size: 1.05rem;
+            font-weight: 800;
+            cursor: pointer;
+            width: 100%;
+        }
 
-<header>
-    <h1>Magazzino Sportivo</h1>
-    <span id="sync-status" class="sync-badge">🔄 Sincronizzazione...</span>
-</header>
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 800;
+        }
+        .badge-warning { background: #fef3c7; color: #92400e; }
+        .badge-info { background: #e0f2fe; color: #0369a1; }
+    </style>
+</head>
+<body>
 
-<div class="container">
-    <!-- CONSEGNA MATERIALE -->
-    <div id="tab-consegna" class="tab-content active">
-        <div class="card" style="background: #eff6ff; border-color: #bfdbfe;">
-            <div class="form-group">
-                <label for="sport-filter">⚽ Filtra per Sport / Disciplina:</label>
-                <select id="sport-filter" class="form-control" onchange="renderConsegna()">
-                    <option value="ALL">Tutte le Discipline</option>
-                    <option value="Calcio">Calcio</option>
-                    <option value="Tai-Chi">Tai-Chi</option>
-                    <option value="Pilates">Pilates</option>
-                    <option value="Staff">Staff / Dirigenza</option>
-                </select>
+    <header>
+        <h1>MAGAZZINO SPORTIVO</h1>
+        <span id="sync-status" class="sync-badge">🔄 Sincronizzazione...</span>
+    </header>
+
+    <div class="container">
+        <!-- 1. CONSEGNA -->
+        <div id="tab-consegna" class="tab-content active">
+            <div class="card" style="background: #eff6ff; border-color: #bfdbfe;">
+                <div class="form-group">
+                    <label for="sport-filter">⚽ FILTRA PER SPORT / DISCIPLINA:</label>
+                    <select id="sport-filter" class="form-control" onchange="renderConsegna()">
+                        <option value="ALL">Tutte le Discipline</option>
+                        <option value="Calcio">Calcio</option>
+                        <option value="Tai-Chi">Tai-Chi</option>
+                        <option value="Pilates">Pilates</option>
+                        <option value="Staff">Staff / Dirigenza</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label for="recipient-name">👤 CONSEGNA MATERIALE A:</label>
+                    <input type="text" id="recipient-name" class="form-control" placeholder="es. Mario Rossi" oninput="handleRecipientChange()">
+                </div>
             </div>
-            <div class="form-group" style="margin-bottom:0;">
-                <label for="recipient-name">👤 Consegna materiale a:</label>
-                <input type="text" id="recipient-name" class="form-control" placeholder="Inserisci Nome e Cognome (es. Mario Rossi)" oninput="handleRecipientChange()">
+
+            <div class="card">
+                <h2 class="section-title">CONSEGNA MATERIALE</h2>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px;">
+                    Inserisci un nome in alto per attivare i pulsanti <strong>−</strong> e registrare la consegna.
+                </p>
+                <div id="consegna-list"></div>
             </div>
         </div>
 
-        <div class="card">
-            <div class="section-title">👕 Seleziona Articoli da Consegnare</div>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">
-                Seleziona una persona in alto per abilitare i tasti <strong>−</strong> e registrare la consegna.
-            </p>
-            <div id="consegna-list"></div>
-        </div>
-    </div>
-
-    <!-- GIACENZE -->
-    <div id="tab-giacenze" class="tab-content">
-        <div class="card">
-            <div class="section-title">⚙️ Correggi Giacenze</div>
-            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 12px;">
-                Modifica diretta della quantità di magazzino senza vincolo di utente.
-            </p>
-            <div id="giacenze-list"></div>
-        </div>
-    </div>
-
-    <!-- ORDINI -->
-    <div id="tab-ordini" class="tab-content">
-        <div class="card">
-            <div class="section-title">📦 Ordini in Arrivo</div>
-            <div id="ordini-arrivo-list"></div>
-        </div>
-        <div class="card">
-            <div class="section-title">🛒 Da Ordinare</div>
-            <div id="ordini-da-ordinare-list"></div>
-        </div>
-    </div>
-
-    <!-- STORICO -->
-    <div id="tab-storico" class="tab-content">
-        <div class="card">
-            <div class="section-title">📋 Storico Consegne</div>
-            <div id="historico-list"></div>
-        </div>
-    </div>
-
-    <!-- IMPOSTAZIONI -->
-    <div id="tab-impostazioni" class="tab-content">
-        <div class="card">
-            <div class="section-title">🏆 Assegna Materiale alle Discipline</div>
-            <div class="form-group">
-                <label for="settings-sport-select">Seleziona Sport:</label>
-                <select id="settings-sport-select" class="form-control" onchange="renderSportAssignments()">
-                    <option value="Calcio">Calcio</option>
-                    <option value="Tai-Chi">Tai-Chi</option>
-                    <option value="Pilates">Pilates</option>
-                    <option value="Staff">Staff / Dirigenza</option>
-                </select>
+        <!-- 2. GIACENZE -->
+        <div id="tab-giacenze" class="tab-content">
+            <div class="card">
+                <h2 class="section-title">GIACENZE MAGAZZINO</h2>
+                <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px;">
+                    Modifica libera della giacenza per riallineare l'inventario.
+                </p>
+                <div id="giacenze-list"></div>
             </div>
-            <div id="sport-assignments" class="checkbox-grid"></div>
-            <button class="btn-action" style="margin-top:16px;" onclick="saveSportAssignments()">Salva Abbinamenti Sport</button>
+        </div>
+
+        <!-- 3. ORDINI -->
+        <div id="tab-ordini" class="tab-content">
+            <div class="card">
+                <h2 class="section-title">ORDINI IN ARRIVO</h2>
+                <div id="ordini-arrivo-list"></div>
+            </div>
+            <div class="card">
+                <h2 class="section-title">MATERIALE DA ORDINARE</h2>
+                <div id="ordini-da-ordinare-list"></div>
+            </div>
+        </div>
+
+        <!-- 4. STORICO -->
+        <div id="tab-storico" class="tab-content">
+            <div class="card">
+                <h2 class="section-title">STORICO CONSEGNE</h2>
+                <div id="historico-list"></div>
+            </div>
+        </div>
+
+        <!-- 5. IMPOSTAZIONI -->
+        <div id="tab-impostazioni" class="tab-content">
+            <div class="card">
+                <h2 class="section-title">ASSEGNA MATERIALE ALLE DISCIPLINE</h2>
+                <div class="form-group">
+                    <label for="settings-sport-select">SELEZIONA SPORT:</label>
+                    <select id="settings-sport-select" class="form-control" onchange="renderSportAssignments()">
+                        <option value="Calcio">Calcio</option>
+                        <option value="Tai-Chi">Tai-Chi</option>
+                        <option value="Pilates">Pilates</option>
+                        <option value="Staff">Staff / Dirigenza</option>
+                    </select>
+                </div>
+                <div id="sport-assignments" class="checkbox-grid"></div>
+                <button class="btn-action" style="margin-top:16px;" onclick="saveSportAssignments()">SALVA ABBINAMENTI SPORT</button>
+            </div>
         </div>
     </div>
-</div>
 
-<!-- NAVBAR IN BASSO ENORME E MOLTO VISIBILE -->
-<nav class="nav-tabs">
-    <button class="tab-btn active" onclick="switchTab('consegna')">
-        <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
-        Consegna
-    </button>
-    <button class="tab-btn" onclick="switchTab('giacenze')">
-        <svg viewBox="0 0 24 24"><path d="M20 13H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1v-6c0-.55-.45-1-1-1zm0-10H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1V4c0-.55-.45-1-1-1z"/></svg>
-        Giacenze
-    </button>
-    <button class="tab-btn" onclick="switchTab('ordini')">
-        <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
-        Ordini
-    </button>
-    <button class="tab-btn" onclick="switchTab('storico')">
-        <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
-        Storico
-    </button>
-    <button class="tab-btn" onclick="switchTab('impostazioni')">
-        <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
-        Impostazioni
-    </button>
-</nav>
+    <!-- NAVBAR IN BASSO ENORME -->
+    <nav class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('consegna')">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+            Consegna
+        </button>
+        <button class="tab-btn" onclick="switchTab('giacenze')">
+            <svg viewBox="0 0 24 24"><path d="M20 13H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1v-6c0-.55-.45-1-1-1zm0-10H4c-.55 0-1 .45-1 1v6c0 .55.45 1 1 1h16c.55 0 1-.45 1-1V4c0-.55-.45-1-1-1z"/></svg>
+            Giacenze
+        </button>
+        <button class="tab-btn" onclick="switchTab('ordini')">
+            <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z"/></svg>
+            Ordini
+        </button>
+        <button class="tab-btn" onclick="switchTab('storico')">
+            <svg viewBox="0 0 24 24"><path d="M13 3c-4.97 0-9 4.03-9 9H1l3.89 3.89.07.14L9 12H6c0-3.87 3.13-7 7-7s7 3.13 7 7-3.13 7-7 7c-1.93 0-3.68-.79-4.94-2.06l-1.42 1.42C8.27 19.99 10.51 21 13 21c4.97 0 9-4.03 9-9s-4.03-9-9-9zm-1 5v5l4.28 2.54.72-1.21-3.5-2.08V8H12z"/></svg>
+            Storico
+        </button>
+        <button class="tab-btn" onclick="switchTab('impostazioni')">
+            <svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+            Impostazioni
+        </button>
+    </nav>
 
-<script>
-    // SOSTITUISCI CON IL TUO LINK DI GOOGLE APPS SCRIPT
-    const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz7SWD-C2ySwecC0LHvUXIZGTS9B0q67Q6alDSe-Mw6ZxokIynF4H77d7-7MKPHfx3_/exec";
+    <script>
+        // INSERISCI QUI L'URL DI GOOGLE APPS SCRIPT
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz7SWD-C2ySwecC0LHvUXIZGTS9B0q67Q6alDSe-Mw6ZxokIynF4H77d7-7MKPHfx3_/exec";
 
-    // DATI REALI ESTRATTI DAL FOGLIO EXCEL GIACENZE
-    let defaultInventory = [
-        // Abbigliamento Adulto
-        { id: 1, name: "T-Shirt Adulto", size: "XS", qty: 15 },
-        { id: 2, name: "T-Shirt Adulto", size: "S", qty: 16 },
-        { id: 3, name: "T-Shirt Adulto", size: "M", qty: 16 },
-        { id: 4, name: "T-Shirt Adulto", size: "L", qty: 19 },
-        { id: 5, name: "T-Shirt Adulto", size: "XL", qty: 20 },
-        { id: 6, name: "T-Shirt Adulto", size: "2XL", qty: 20 },
-        
-        { id: 7, name: "Felpa Adulto", size: "XS", qty: 19 },
-        { id: 8, name: "Felpa Adulto", size: "S", qty: 20 },
-        { id: 9, name: "Felpa Adulto", size: "M", qty: 10 },
-        { id: 10, name: "Felpa Adulto", size: "L", qty: 24 },
-        { id: 11, name: "Felpa Adulto", size: "XL", qty: 15 },
-        { id: 12, name: "Felpa Adulto", size: "2XL", qty: 9 },
+        // DATI REALI DAL FILE EXCEL (Aggiornamento Agosto 2026)
+        let defaultInventory = [
+            // Abbigliamento Adulto
+            { id: 1, name: "T-Shirt Adulto", size: "XS", qty: 15 },
+            { id: 2, name: "T-Shirt Adulto", size: "S", qty: 16 },
+            { id: 3, name: "T-Shirt Adulto", size: "M", qty: 16 },
+            { id: 4, name: "T-Shirt Adulto", size: "L", qty: 19 },
+            { id: 5, name: "T-Shirt Adulto", size: "XL", qty: 20 },
+            { id: 6, name: "T-Shirt Adulto", size: "2XL", qty: 20 },
 
-        { id: 13, name: "Tuta Completa Adulto", size: "XS", qty: 9 },
-        { id: 14, name: "Tuta Completa Adulto", size: "S", qty: 5 },
-        { id: 15, name: "Tuta Completa Adulto", size: "M", qty: 5 },
-        { id: 16, name: "Tuta Completa Adulto", size: "L", qty: 9 },
+            { id: 7, name: "Felpa Adulto", size: "XS", qty: 19 },
+            { id: 8, name: "Felpa Adulto", size: "S", qty: 20 },
+            { id: 9, name: "Felpa Adulto", size: "M", qty: 10 },
+            { id: 10, name: "Felpa Adulto", size: "L", qty: 24 },
+            { id: 11, name: "Felpa Adulto", size: "XL", qty: 15 },
+            { id: 12, name: "Felpa Adulto", size: "2XL", qty: 9 },
 
-        { id: 17, name: "Panta Uomo", size: "XS", qty: 29 },
-        { id: 18, name: "Panta Uomo", size: "S", qty: 18 },
-        { id: 19, name: "Panta Uomo", size: "M", qty: 20 },
+            { id: 13, name: "Tuta Completa", size: "XS", qty: 9 },
+            { id: 14, name: "Tuta Completa", size: "S", qty: 5 },
+            { id: 15, name: "Tuta Completa", size: "M", qty: 5 },
+            { id: 16, name: "Tuta Completa", size: "L", qty: 9 },
+            { id: 17, name: "Tuta Completa", size: "XL", qty: 10 },
+            { id: 18, name: "Tuta Completa", size: "2XL", qty: 5 },
 
-        { id: 20, name: "Panta Donna", size: "XS", qty: 15 },
-        { id: 21, name: "Panta Donna", size: "S", qty: 13 },
-        { id: 22, name: "Panta Donna", size: "M", qty: 11 },
+            { id: 19, name: "Panta Uomo", size: "XS", qty: 29 },
+            { id: 20, name: "Panta Uomo", size: "S", qty: 18 },
+            { id: 21, name: "Panta Uomo", size: "M", qty: 20 },
+            { id: 22, name: "Panta Uomo", size: "L", qty: 20 },
+            { id: 23, name: "Panta Uomo", size: "XL", qty: 20 },
+            { id: 24, name: "Panta Uomo", size: "2XL", qty: 10 },
 
-        { id: 23, name: "K-Way Adulto", size: "XS", qty: 3 },
-        { id: 24, name: "K-Way Adulto", size: "S", qty: 8 },
+            { id: 25, name: "Panta Donna", size: "XS", qty: 15 },
+            { id: 26, name: "Panta Donna", size: "S", qty: 13 },
+            { id: 27, name: "Panta Donna", size: "M", qty: 11 },
+            { id: 28, name: "Panta Donna", size: "L", qty: 15 },
+            { id: 29, name: "Panta Donna", size: "XL", qty: 14 },
+            { id: 30, name: "Panta Donna", size: "2XL", qty: 15 },
 
-        { id: 25, name: "T-Shirt Tai-Chi", size: "M", qty: 5 },
-        { id: 26, name: "Pile Tai-Chi", size: "M", qty: 5 },
-        { id: 27, name: "Pile Pilates", size: "M", qty: 5 },
-        { id: 28, name: "Polo Staff", size: "L", qty: 10 },
-        { id: 29, name: "Bermuda Staff", size: "L", qty: 10 },
-        { id: 30, name: "100 gr.", size: "L", qty: 4 },
+            { id: 31, name: "K-Way", size: "XS", qty: 3 },
+            { id: 32, name: "K-Way", size: "S", qty: 8 },
+            { id: 33, name: "K-Way", size: "M", qty: 2 },
+            { id: 34, name: "K-Way", size: "L", qty: 3 },
+            { id: 35, name: "K-Way", size: "XL", qty: 0 },
+            { id: 36, name: "K-Way", size: "2XL", qty: 0 },
 
-        // Abbigliamento Bimbo
-        { id: 31, name: "T-Shirt Bimbo", size: "6 anni / 4XS", qty: 20 },
-        { id: 32, name: "T-Shirt Bimbo", size: "8 anni", qty: 19 },
-        { id: 33, name: "T-Shirt Bimbo", size: "10 anni / 3XS", qty: 13 },
-        { id: 34, name: "T-Shirt Bimbo", size: "12 anni / 2XS", qty: 17 },
+            { id: 37, name: "T-Shirt Tai-Chi", size: "M", qty: 5 },
+            { id: 38, name: "Pile Tai-Chi", size: "M", qty: 5 },
+            { id: 39, name: "Pile Pilates", size: "M", qty: 5 },
+            { id: 40, name: "Polo Staff", size: "L", qty: 1 },
+            { id: 41, name: "Polo Staff", size: "XL", qty: 5 },
+            { id: 42, name: "Bermuda Staff", size: "M", qty: 3 },
 
-        { id: 35, name: "Felpa Bimbo", size: "6 anni / 4XS", qty: 15 },
-        { id: 36, name: "Felpa Bimbo", size: "8 anni", qty: 15 },
+            // Abbigliamento Bimbo
+            { id: 43, name: "T-Shirt Bimbo", size: "6 anni / 4XS", qty: 20 },
+            { id: 44, name: "T-Shirt Bimbo", size: "8 anni", qty: 19 },
+            { id: 45, name: "T-Shirt Bimbo", size: "10 anni / 3XS", qty: 13 },
+            { id: 46, name: "T-Shirt Bimbo", size: "12 anni / 2XS", qty: 17 },
 
-        // Accessori
-        { id: 37, name: "Calze Blu", size: "Unica", qty: 45 },
-        { id: 38, name: "Calze Azzurre", size: "Unica", qty: 46 },
-        { id: 39, name: "Zaino", size: "Unica", qty: 19 },
-        { id: 40, name: "Borsa Media", size: "Unica", qty: 10 }
-    ];
+            { id: 47, name: "Felpa Bimbo", size: "6 anni / 4XS", qty: 15 },
+            { id: 48, name: "Felpa Bimbo", size: "8 anni", qty: 15 },
+            { id: 49, name: "Felpa Bimbo", size: "10 anni / 3XS", qty: 8 },
+            { id: 50, name: "Felpa Bimbo", size: "12 anni / 2XS", qty: 15 },
 
-    let inventory = defaultInventory;
-    let historyLogs = [];
-    
-    let orders = [
-        { id: 101, name: "T-Shirt Adulto", size: "M", qty: 10, type: "incoming" },
-        { id: 102, name: "Felpa Adulto", size: "XL", qty: 10, type: "incoming" },
-        { id: 103, name: "K-Way Adulto", size: "XL", qty: 15, type: "to_order" },
-        { id: 104, name: "T-Shirt Bimbo", size: "8 anni", qty: 20, type: "to_order" }
-    ];
+            // Accessori
+            { id: 51, name: "Calze Blu", size: "Unica", qty: 45 },
+            { id: 52, name: "Calze Azzurre", size: "Unica", qty: 46 },
+            { id: 53, name: "Zaino", size: "Unica", qty: 19 },
+            { id: 54, name: "Borsa Media", size: "Unica", qty: 10 }
+        ];
 
-    let sportAssignments = JSON.parse(localStorage.getItem('sportAssignments')) || {
-        "Calcio": ["T-Shirt Adulto", "Felpa Adulto", "Tuta Completa Adulto", "K-Way Adulto", "Calze Blu", "Calze Azzurre", "Zaino", "Borsa Media"],
-        "Tai-Chi": ["T-Shirt Tai-Chi", "Pile Tai-Chi"],
-        "Pilates": ["Pile Pilates"],
-        "Staff": ["Polo Staff", "Bermuda Staff"]
-    };
+        let orders = [
+            { id: 101, name: "T-Shirt Adulto", size: "M", qty: 10, type: "incoming" },
+            { id: 102, name: "Felpa Adulto", size: "XL", qty: 10, type: "incoming" },
+            { id: 103, name: "K-Way", size: "XL", qty: 10, type: "to_order" }
+        ];
 
-    let currentRecipient = "";
+        let inventory = defaultInventory;
+        let historyLogs = [];
+        let sportAssignments = JSON.parse(localStorage.getItem('sportAssignments')) || {
+            "Calcio": ["T-Shirt Adulto", "Felpa Adulto", "Tuta Completa", "K-Way", "Calze Blu", "Calze Azzurre", "Zaino", "Borsa Media"],
+            "Tai-Chi": ["T-Shirt Tai-Chi", "Pile Tai-Chi"],
+            "Pilates": ["Pile Pilates"],
+            "Staff": ["Polo Staff", "Bermuda Staff"]
+        };
+        let currentRecipient = "";
 
-    function loadFromCloud() {
-        if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("INSERISCI_QUI")) return;
-        fetch(GOOGLE_SCRIPT_URL)
-            .then(res => res.json())
-            .then(data => {
-                if (data.inventory && data.inventory.length > 1) {
-                    inventory = data.inventory.slice(1).map(r => ({ id: parseInt(r[0]), name: r[1], size: r[2], qty: parseInt(r[3]) }));
-                }
-                if (data.history && data.history.length > 1) {
-                    historyLogs = data.history.slice(1).map(r => ({ id: r[0], date: r[1], person: r[2], item: r[3], qty: r[4] }));
-                }
+        function loadFromCloud() {
+            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("INSERISCI_QUI")) return;
+            fetch(GOOGLE_SCRIPT_URL)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.inventory && data.inventory.length > 1) {
+                        inventory = data.inventory.slice(1).map(r => ({ id: r[0], name: r[1], size: r[2], qty: parseInt(r[3]) }));
+                    }
+                    if (data.history && data.history.length > 1) {
+                        historyLogs = data.history.slice(1).map(r => ({ id: r[0], date: r[1], person: r[2], item: r[3], qty: r[4] }));
+                    }
+                    document.getElementById("sync-status").innerText = "☁️ Sincronizzato";
+                    renderAll();
+                }).catch(() => {
+                    document.getElementById("sync-status").innerText = "⚠️ Offline";
+                });
+        }
+
+        function syncToCloud() {
+            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("INSERISCI_QUI")) return;
+            document.getElementById("sync-status").innerText = "⏳ Salvataggio...";
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                body: JSON.stringify({ inventory: inventory, historyLogs: historyLogs })
+            }).then(() => {
                 document.getElementById("sync-status").innerText = "☁️ Sincronizzato";
-                renderAll();
-            }).catch(() => {
-                document.getElementById("sync-status").innerText = "⚠️ Offline";
             });
-    }
-
-    function syncToCloud() {
-        if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("INSERISCI_QUI")) return;
-        document.getElementById("sync-status").innerText = "⏳ Salvataggio...";
-        fetch(GOOGLE_SCRIPT_URL, {
-            method: "POST",
-            mode: "no-cors",
-            body: JSON.stringify({ inventory: inventory, historyLogs: historyLogs })
-        }).then(() => {
-            document.getElementById("sync-status").innerText = "☁️ Sincronizzato";
-        });
-    }
-
-    function deliverItem(id) {
-        if (!currentRecipient) return;
-        let item = inventory.find(i => i.id === id);
-        if (item && item.qty > 0) {
-            item.qty--;
-            let timestamp = new Date().toLocaleString('it-IT');
-            historyLogs.unshift({ id: Date.now(), date: timestamp, person: currentRecipient, item: `${item.name} (${item.size})`, qty: 1 });
-            renderAll();
-            syncToCloud();
         }
-    }
 
-    function changeQty(id, delta) {
-        let item = inventory.find(i => i.id === id);
-        if (item) {
-            item.qty = Math.max(0, item.qty + delta);
-            renderAll();
-            syncToCloud();
-        }
-    }
-
-    function setQtyDirectly(id, val) {
-        let item = inventory.find(i => i.id === id);
-        let parsed = parseInt(val, 10);
-        if (item && !isNaN(parsed)) {
-            item.qty = Math.max(0, parsed);
-            renderAll();
-            syncToCloud();
-        }
-    }
-
-    function receiveOrder(orderId) {
-        let orderIdx = orders.findIndex(o => o.id === orderId);
-        if (orderIdx !== -1) {
-            let order = orders[orderIdx];
-            let item = inventory.find(i => i.name === order.name && i.size === order.size);
-            if (item) {
-                item.qty += order.qty;
-            } else {
-                inventory.push({ id: Date.now(), name: order.name, size: order.size, qty: order.qty });
+        function deliverItem(id) {
+            if (!currentRecipient) return;
+            let item = inventory.find(i => i.id === id);
+            if (item && item.qty > 0) {
+                item.qty--;
+                let timestamp = new Date().toLocaleString('it-IT');
+                historyLogs.unshift({ id: Date.now(), date: timestamp, person: currentRecipient, item: `${item.name} (${item.size})`, qty: 1 });
+                renderAll();
+                syncToCloud();
             }
-            orders.splice(orderIdx, 1);
+        }
+
+        function changeQty(id, delta) {
+            let item = inventory.find(i => i.id === id);
+            if (item) {
+                item.qty = Math.max(0, item.qty + delta);
+                renderAll();
+                syncToCloud();
+            }
+        }
+
+        function receiveOrder(orderId) {
+            let orderIdx = orders.findIndex(o => o.id === orderId);
+            if (orderIdx !== -1) {
+                let order = orders[orderIdx];
+                let item = inventory.find(i => i.name === order.name && i.size === order.size);
+                if (item) {
+                    item.qty += order.qty;
+                } else {
+                    inventory.push({ id: Date.now(), name: order.name, size: order.size, qty: order.qty });
+                }
+                orders.splice(orderIdx, 1);
+                renderAll();
+                syncToCloud();
+            }
+        }
+
+        function handleRecipientChange() {
+            currentRecipient = document.getElementById("recipient-name").value.trim();
+            renderConsegna();
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            event.currentTarget.classList.add('active');
+            if(tabId === 'impostazioni') renderSportAssignments();
             renderAll();
-            syncToCloud();
-        }
-    }
-
-    function handleRecipientChange() {
-        currentRecipient = document.getElementById("recipient-name").value.trim();
-        renderConsegna();
-    }
-
-    function switchTab(tabId) {
-        document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-        
-        document.getElementById(`tab-${tabId}`).classList.add('active');
-        event.currentTarget.classList.add('active');
-
-        if(tabId === 'impostazioni') renderSportAssignments();
-        renderAll();
-    }
-
-    function renderConsegna() {
-        const container = document.getElementById("consegna-list");
-        const isDisabled = !currentRecipient;
-        const selectedSport = document.getElementById("sport-filter").value;
-
-        let filtered = inventory;
-        if (selectedSport !== "ALL" && sportAssignments[selectedSport]) {
-            filtered = inventory.filter(i => sportAssignments[selectedSport].includes(i.name));
         }
 
-        container.innerHTML = filtered.map(item => `
-            <div class="item-row">
-                <div class="item-info">
-                    <div class="item-title">${item.name}</div>
-                    <div class="item-subtitle">Taglia: <strong>${item.size}</strong> | Giacenza: <strong>${item.qty}</strong></div>
+        function renderConsegna() {
+            const container = document.getElementById("consegna-list");
+            const isDisabled = !currentRecipient;
+            const selectedSport = document.getElementById("sport-filter").value;
+
+            let filtered = inventory;
+            if (selectedSport !== "ALL" && sportAssignments[selectedSport]) {
+                filtered = inventory.filter(i => sportAssignments[selectedSport].includes(i.name));
+            }
+
+            container.innerHTML = filtered.map(item => `
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-title">${item.name}</div>
+                        <div class="item-subtitle">Taglia: ${item.size} | Disponibili: <strong>${item.qty}</strong></div>
+                    </div>
+                    <div class="qty-controls">
+                        <button class="btn-qty minus" ${isDisabled || item.qty <= 0 ? 'disabled' : ''} onclick="deliverItem(${item.id})">−</button>
+                    </div>
                 </div>
-                <div class="qty-controls">
-                    <button class="btn-qty minus" ${isDisabled || item.qty <= 0 ? 'disabled' : ''} onclick="deliverItem(${item.id})">−</button>
+            `).join('');
+        }
+
+        function renderGiacenze() {
+            document.getElementById("giacenze-list").innerHTML = inventory.map(item => `
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-title">${item.name} (${item.size})</div>
+                    </div>
+                    <div class="qty-controls">
+                        <button class="btn-qty" onclick="changeQty(${item.id}, -1)">-</button>
+                        <span class="qty-input" style="display:flex; align-items:center; justify-content:center;">${item.qty}</span>
+                        <button class="btn-qty" onclick="changeQty(${item.id}, 1)">+</button>
+                    </div>
                 </div>
-            </div>
-        `).join('');
-    }
+            `).join('');
+        }
 
-    function renderGiacenze() {
-        document.getElementById("giacenze-list").innerHTML = inventory.map(item => `
-            <div class="item-row">
-                <div class="item-info">
-                    <div class="item-title">${item.name}</div>
-                    <div class="item-subtitle">Taglia: <strong>${item.size}</strong></div>
+        function renderOrdini() {
+            const arrContainer = document.getElementById("ordini-arrivo-list");
+            const ordContainer = document.getElementById("ordini-da-ordinare-list");
+
+            let incoming = orders.filter(o => o.type === 'incoming');
+            let toOrder = orders.filter(o => o.type === 'to_order');
+
+            arrContainer.innerHTML = incoming.length === 0 ? '<p style="color:var(--text-muted); font-size:0.9rem;">Nessun ordine in arrivo.</p>' :
+                incoming.map(o => `
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-title">${o.name} (${o.size})</div>
+                        <div class="item-subtitle"><span class="badge badge-info">In Arrivo: ${o.qty} pz</span></div>
+                    </div>
+                    <button class="btn-action" style="width:auto;" onclick="receiveOrder(${o.id})">Ricevi (+${o.qty})</button>
                 </div>
-                <div class="qty-controls">
-                    <button class="btn-qty minus" onclick="changeQty(${item.id}, -1)">-</button>
-                    <input type="number" class="qty-input" value="${item.qty}" onchange="setQtyDirectly(${item.id}, this.value)">
-                    <button class="btn-qty plus" onclick="changeQty(${item.id}, 1)">+</button>
+            `).join('');
+
+            ordContainer.innerHTML = toOrder.length === 0 ? '<p style="color:var(--text-muted); font-size:0.9rem;">Nessun articolo da ordinare.</p>' :
+                toOrder.map(o => `
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-title">${o.name} (${o.size})</div>
+                        <div class="item-subtitle"><span class="badge badge-warning">Da Ordinare: ${o.qty} pz</span></div>
+                    </div>
                 </div>
-            </div>
-        `).join('');
-    }
+            `).join('');
+        }
 
-    function renderOrdini() {
-        const arrContainer = document.getElementById("ordini-arrivo-list");
-        const ordContainer = document.getElementById("ordini-da-ordinare-list");
-
-        let incoming = orders.filter(o => o.type === 'incoming');
-        let toOrder = orders.filter(o => o.type === 'to_order');
-
-        arrContainer.innerHTML = incoming.length === 0 ? '<p style="color:var(--text-muted); font-size:0.9rem;">Nessun ordine in arrivo.</p>' :
-            incoming.map(o => `
-            <div class="item-row">
-                <div class="item-info">
-                    <div class="item-title">${o.name} (${o.size})</div>
-                    <div class="item-subtitle"><span class="badge badge-info">In Arrivo: ${o.qty} pcs</span></div>
+        function renderStorico() {
+            document.getElementById("historico-list").innerHTML = historyLogs.length === 0 ? '<p style="color:var(--text-muted); font-size:0.9rem;">Nessuna consegna effettuata.</p>' :
+                historyLogs.map(log => `
+                <div class="history-item">
+                    <div class="history-person">${log.person}</div>
+                    <div class="history-details">• ${log.qty}x ${log.item}</div>
+                    <div class="history-date">${log.date}</div>
                 </div>
-                <button class="btn-action" style="width:auto; padding:8px 12px;" onclick="receiveOrder(${o.id})">Ricevi +${o.qty}</button>
-            </div>
-        `).join('');
+            `).join('');
+        }
 
-        ordContainer.innerHTML = toOrder.length === 0 ? '<p style="color:var(--text-muted); font-size:0.9rem;">Nessun articolo da ordinare.</p>' :
-            toOrder.map(o => `
-            <div class="item-row">
-                <div class="item-info">
-                    <div class="item-title">${o.name} (${o.size})</div>
-                    <div class="item-subtitle"><span class="badge badge-warning">Da Ordinare: ${o.qty} pcs</span></div>
-                </div>
-            </div>
-        `).join('');
-    }
+        function renderSportAssignments() {
+            const selectedSport = document.getElementById("settings-sport-select").value;
+            const container = document.getElementById("sport-assignments");
+            const uniqueNames = [...new Set(inventory.map(i => i.name))];
+            const currentItems = sportAssignments[selectedSport] || [];
 
-    function renderStorico() {
-        document.getElementById("historico-list").innerHTML = historyLogs.length === 0 ? '<p style="color:var(--text-muted); font-size:0.9rem;">Nessuna consegna registrata.</p>' :
-            historyLogs.map(log => `
-            <div class="history-item">
-                <div class="history-person">${log.person}</div>
-                <div class="history-details">• ${log.qty}x ${log.item}</div>
-                <div class="history-date">${log.date}</div>
-            </div>
-        `).join('');
-    }
+            container.innerHTML = uniqueNames.map(pName => `
+                <label class="checkbox-item">
+                    <input type="checkbox" value="${pName}" ${currentItems.includes(pName) ? 'checked' : ''}>
+                    ${pName}
+                </label>
+            `).join('');
+        }
 
-    function renderSportAssignments() {
-        const selectedSport = document.getElementById("settings-sport-select").value;
-        const container = document.getElementById("sport-assignments");
-        const uniqueNames = [...new Set(inventory.map(i => i.name))];
-        const currentItems = sportAssignments[selectedSport] || [];
+        function saveSportAssignments() {
+            const selectedSport = document.getElementById("settings-sport-select").value;
+            const checkboxes = document.querySelectorAll("#sport-assignments input[type='checkbox']:checked");
+            sportAssignments[selectedSport] = Array.from(checkboxes).map(cb => cb.value);
+            localStorage.setItem('sportAssignments', JSON.stringify(sportAssignments));
+            alert("Abbinamenti salvati per " + selectedSport);
+        }
 
-        container.innerHTML = uniqueNames.map(pName => `
-            <label class="checkbox-item">
-                <input type="checkbox" value="${pName}" ${currentItems.includes(pName) ? 'checked' : ''}>
-                ${pName}
-            </label>
-        `).join('');
-    }
+        function renderAll() {
+            renderConsegna();
+            renderGiacenze();
+            renderOrdini();
+            renderStorico();
+        }
 
-    function saveSportAssignments() {
-        const selectedSport = document.getElementById("settings-sport-select").value;
-        const checkboxes = document.querySelectorAll("#sport-assignments input[type='checkbox']:checked");
-        sportAssignments[selectedSport] = Array.from(checkboxes).map(cb => cb.value);
-        localStorage.setItem('sportAssignments', JSON.stringify(sportAssignments));
-        alert(`Abbinamenti salvati per la disciplina: ${selectedSport}`);
-    }
-
-    function renderAll() {
-        renderConsegna();
-        renderGiacenze();
-        renderOrdini();
-        renderStorico();
-    }
-
-    loadFromCloud();
-</script>
+        loadFromCloud();
+    </script>
+</body>
+</html>
