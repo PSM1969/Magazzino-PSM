@@ -581,8 +581,8 @@
         };
         let currentRecipient = "";
 
-        function loadFromCloud() {
-            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("https://script.google.com/macros/s/AKfycbz7SWD-C2ySwecC0LHvUXIZGTS9B0q67Q6alDSe-Mw6ZxokIynF4H77d7-7MKPHfx3_/exec")) return;
+       function loadFromCloud() {
+            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("INSERISCI_QUI")) return;
             fetch(GOOGLE_SCRIPT_URL)
                 .then(res => res.json())
                 .then(data => {
@@ -601,7 +601,7 @@
 
         function syncToCloud() {
             localStorage.setItem('appOrders', JSON.stringify(orders));
-            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("https://script.google.com/macros/s/AKfycbz7SWD-C2ySwecC0LHvUXIZGTS9B0q67Q6alDSe-Mw6ZxokIynF4H77d7-7MKPHfx3_/exec")) return;
+            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("INSERISCI_QUI")) return;
             document.getElementById("sync-status").innerText = "⏳ Salvataggio...";
             fetch(GOOGLE_SCRIPT_URL, {
                 method: "POST",
@@ -611,7 +611,6 @@
                 document.getElementById("sync-status").innerText = "☁️ Sincronizzato";
             });
         }
-
         function deliverItem(id) {
             if (!currentRecipient) return;
             let item = inventory.find(i => i.id === id);
