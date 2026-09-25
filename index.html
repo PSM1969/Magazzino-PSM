@@ -582,10 +582,20 @@
         let currentRecipient = "";
 
        function loadFromCloud() {
-            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("INSERISCI_QUI")) return;
-            fetch(GOOGLE_SCRIPT_URL)
+            if (!GOOGLE_SCRIPT_URL || GOOGLE_SCRIPT_URL.includes("INSERISCI_QUI")) {
+                document.getElementById("sync-status").innerText = "⚠️ Offline";
+                renderAll();
+                return;
+            }
+
+            // Imposta un timeout di sicurezza di 3.5 secondi
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 3500);
+
+            fetch(GOOGLE_SCRIPT_URL, { signal: controller.signal })
                 .then(res => res.json())
                 .then(data => {
+                    clearTimeout(timeoutId);
                     if (data.inventory && data.inventory.length > 1) {
                         inventory = data.inventory.slice(1).map(r => ({ id: r[0], name: r[1], size: r[2], qty: parseInt(r[3]) }));
                     }
@@ -594,8 +604,12 @@
                     }
                     document.getElementById("sync-status").innerText = "☁️ Sincronizzato";
                     renderAll();
-                }).catch(() => {
-                    document.getElementById("sync-status").innerText = "⚠️ Offline";
+                })
+                .catch(err => {
+                    clearTimeout(timeoutId);
+                    console.warn("Chiamata cloud fallita o in timeout, uso i dati locali:", err);
+                    document.getElementById("sync-status").innerText = "⚠️ Offline / Locale";
+                    renderAll();
                 });
         }
 
