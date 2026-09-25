@@ -400,11 +400,19 @@
             "Panta Donna": 5,
             "K-Way": 2,
             "Giacca 100gr": 2,
-            "Giacca SoftShell": 2,
-            "Polo Cotone": 3,
+            "Giacca SoftShell": 0,
+            "Polo Cotone": 0,
             "T-Shirt Tai-Chi": 2,
-            "Pile Tai-Chi": 2,
-            "Pile Pilates": 2,
+            "Pile Tai-Chi": {
+        "M": 3,
+        "L": 3
+        // Le altre taglie (XS, S, XL, 2XL) non essendo elencate non avranno scorta minima
+    },
+           "Pile Pilates": {
+        "M": 3,
+        "L": 3
+        // Le altre taglie (XS, S, XL, 2XL) non essendo elencate non avranno scorta minima
+    },
             "Polo Staff": 2,
             "Bermuda Staff": 2,
             "T-Shirt Bimbo": 5,
@@ -417,21 +425,35 @@
 
         // DATI REALI INVENTARIO
         let defaultInventory = [
-            // Abbigliamento Adulto
+            // T-Shirt
+            { id: 43, name: "T-Shirt Bimbo", size: "6 anni / 4XS", qty: 20 },
+            { id: 44, name: "T-Shirt Bimbo", size: "8 anni", qty: 19 },
+            { id: 45, name: "T-Shirt Bimbo", size: "10 anni / 3XS", qty: 13 },
+            { id: 46, name: "T-Shirt Bimbo", size: "12 anni / 2XS", qty: 17 },
+            
             { id: 1, name: "T-Shirt Adulto", size: "XS", qty: 15 },
             { id: 2, name: "T-Shirt Adulto", size: "S", qty: 16 },
             { id: 3, name: "T-Shirt Adulto", size: "M", qty: 16 },
             { id: 4, name: "T-Shirt Adulto", size: "L", qty: 19 },
             { id: 5, name: "T-Shirt Adulto", size: "XL", qty: 20 },
             { id: 6, name: "T-Shirt Adulto", size: "2XL", qty: 20 },
+            
+            { id: 37, name: "T-Shirt Tai-Chi", size: "M", qty: 5 },
 
+            // Felpe
+            { id: 47, name: "Felpa Bimbo", size: "6 anni / 4XS", qty: 15 },
+            { id: 48, name: "Felpa Bimbo", size: "8 anni", qty: 15 },
+            { id: 49, name: "Felpa Bimbo", size: "10 anni / 3XS", qty: 8 },
+            { id: 50, name: "Felpa Bimbo", size: "12 anni / 2XS", qty: 15 },
+            
             { id: 7, name: "Felpa Adulto", size: "XS", qty: 19 },
             { id: 8, name: "Felpa Adulto", size: "S", qty: 20 },
             { id: 9, name: "Felpa Adulto", size: "M", qty: 10 },
             { id: 10, name: "Felpa Adulto", size: "L", qty: 24 },
             { id: 11, name: "Felpa Adulto", size: "XL", qty: 15 },
             { id: 12, name: "Felpa Adulto", size: "2XL", qty: 9 },
-
+             
+            // Tute
             { id: 13, name: "Tuta Completa", size: "XS", qty: 9 },
             { id: 14, name: "Tuta Completa", size: "S", qty: 5 },
             { id: 15, name: "Tuta Completa", size: "M", qty: 5 },
@@ -439,6 +461,7 @@
             { id: 17, name: "Tuta Completa", size: "XL", qty: 10 },
             { id: 18, name: "Tuta Completa", size: "2XL", qty: 5 },
 
+            // Panta 
             { id: 19, name: "Panta Uomo", size: "XS", qty: 29 },
             { id: 20, name: "Panta Uomo", size: "S", qty: 18 },
             { id: 21, name: "Panta Uomo", size: "M", qty: 20 },
@@ -453,14 +476,15 @@
             { id: 29, name: "Panta Donna", size: "XL", qty: 14 },
             { id: 30, name: "Panta Donna", size: "2XL", qty: 15 },
 
-            // Bermuda Uomo (Inclusi i 4 taglia L mancanti)
-            { id: 301, name: "Bermuda Staff", size: "XS", qty: 0 },
+            // Bermuda Staff 
+            { id: 301, name: "Bermuda Staff", size: "XS", qty: 1 },
             { id: 302, name: "Bermuda Staff", size: "S", qty: 0 },
-            { id: 303, name: "Bermuda Staff", size: "M", qty: 0 },
+            { id: 303, name: "Bermuda Staff", size: "M", qty: 3 },
             { id: 304, name: "Bermuda Staff", size: "L", qty: 4 },
             { id: 305, name: "Bermuda Staff", size: "XL", qty: 0 },
             { id: 306, name: "Bermuda Staff", size: "2XL", qty: 0 },
 
+            // K-Way
             { id: 31, name: "K-Way", size: "XS", qty: 3 },
             { id: 32, name: "K-Way", size: "S", qty: 8 },
             { id: 33, name: "K-Way", size: "M", qty: 2 },
@@ -468,7 +492,6 @@
             { id: 35, name: "K-Way", size: "XL", qty: 0 },
             { id: 36, name: "K-Way", size: "2XL", qty: 0 },
 
-            // Nuovi articoli aggiunti:
             // Giacca 100gr
             { id: 401, name: "Giacca 100gr", size: "XS", qty: 0 },
             { id: 402, name: "Giacca 100gr", size: "S", qty: 0 },
@@ -485,7 +508,7 @@
             { id: 505, name: "Giacca SoftShell", size: "XL", qty: 0 },
             { id: 506, name: "Giacca SoftShell", size: "2XL", qty: 0 },
 
-            // Polo Cotone
+            // Polo 
             { id: 601, name: "Polo Cotone", size: "XS", qty: 0 },
             { id: 602, name: "Polo Cotone", size: "S", qty: 0 },
             { id: 603, name: "Polo Cotone", size: "M", qty: 0 },
@@ -493,23 +516,27 @@
             { id: 605, name: "Polo Cotone", size: "XL", qty: 0 },
             { id: 606, name: "Polo Cotone", size: "2XL", qty: 0 },
 
-            { id: 37, name: "T-Shirt Tai-Chi", size: "M", qty: 5 },
-            { id: 38, name: "Pile Tai-Chi", size: "M", qty: 5 },
-            { id: 39, name: "Pile Pilates", size: "M", qty: 5 },
-            { id: 40, name: "Polo Staff", size: "L", qty: 1 },
-            { id: 41, name: "Polo Staff", size: "XL", qty: 5 },
-            { id: 42, name: "Bermuda Staff", size: "M", qty: 3 },
+            { id: 601, name: "Polo Staff", size: "XS", qty: 0 },
+            { id: 602, name: "Polo Staff", size: "S", qty: 0 },
+            { id: 603, name: "Polo Staff", size: "M", qty: 0 },
+            { id: 604, name: "Polo Staff", size: "L", qty: 1 },
+            { id: 605, name: "Polo Staff", size: "XL", qty: 5 },
+            { id: 606, name: "Polo Staff", size: "2XL", qty: 0 },
 
-            // Abbigliamento Bimbo
-            { id: 43, name: "T-Shirt Bimbo", size: "6 anni / 4XS", qty: 20 },
-            { id: 44, name: "T-Shirt Bimbo", size: "8 anni", qty: 19 },
-            { id: 45, name: "T-Shirt Bimbo", size: "10 anni / 3XS", qty: 13 },
-            { id: 46, name: "T-Shirt Bimbo", size: "12 anni / 2XS", qty: 17 },
+            // Pile
+            { id: 601, name: "Pile Tai-Chi", size: "XS", qty: 0 },
+            { id: 602, name: "Pile Tai-Chi", size: "S", qty: 0 },
+            { id: 603, name: "Pile Tai-Chi", size: "M", qty: 5 },
+            { id: 604, name: "Pile Tai-Chi", size: "L", qty: 0 },
+            { id: 605, name: "Pile Tai-Chi", size: "XL", qty: 0 },
+            { id: 606, name: "Pile Tai-Chi", size: "2XL", qty: 0 },
 
-            { id: 47, name: "Felpa Bimbo", size: "6 anni / 4XS", qty: 15 },
-            { id: 48, name: "Felpa Bimbo", size: "8 anni", qty: 15 },
-            { id: 49, name: "Felpa Bimbo", size: "10 anni / 3XS", qty: 8 },
-            { id: 50, name: "Felpa Bimbo", size: "12 anni / 2XS", qty: 15 },
+            { id: 601, name: "Pile Pilates", size: "XS", qty: 0 },
+            { id: 602, name: "Pile Pilates", size: "S", qty: 0 },
+            { id: 603, name: "Pile Pilates", size: "M", qty: 5 },
+            { id: 604, name: "Pile Pilates", size: "L", qty: 0 },
+            { id: 605, name: "Pile Pilates", size: "XL", qty: 0 },
+            { id: 606, name: "Pile Pilates", size: "2XL", qty: 0 },
 
             // Accessori
             { id: 51, name: "Calze Blu", size: "Unica", qty: 45 },
