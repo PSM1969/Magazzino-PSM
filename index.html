@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magazzino Sportivo</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg-color: #f8fafc;
+            --card-bg: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+            --danger: #ef4444;
+            --success: #10b981;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding-bottom: 75px; }
+        header { background-color: var(--primary); color: white; padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        header h1 { font-size: 1.1rem; font-weight: 700; }
+        .sync-badge { font-size: 0.75rem; background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 12px; }
+        .container { padding: 14px; max-width: 600px; margin: 0 auto; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .card { background: var(--card-bg); border-radius: 12px; padding: 14px; margin-bottom: 14px; border: 1px solid var(--border); }
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 4px; color: var(--text-muted); }
+        .form-control { width: 100%; padding: 10px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.95rem; outline: none; }
+        .item-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border); }
+        .item-info { flex: 1; }
+        .item-title { font-weight: 600; font-size: 0.9rem; }
+        .item-subtitle { font-size: 0.78rem; color: var(--text-muted); }
+        .qty-controls { display: flex; align-items: center; gap: 6px; }
+        .btn-qty { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border); background: white; font-size: 1.2rem; font-weight: bold; cursor: pointer; }
+        .btn-qty.minus { color: var(--danger); }
+        .btn-qty:disabled { opacity: 0.3; cursor: not-allowed; }
+        .qty-input { width: 44px; text-align: center; font-size: 0.95rem; font-weight: bold; border: 1px solid var(--border); border-radius: 6px; padding: 4px; }
+        .nav-tabs { display: flex; position: fixed; bottom: 0; left: 0; right: 0; background: var(--card-bg); border-top: 1px solid var(--border); z-index: 100; }
+        .tab-btn { flex: 1; padding: 10px 4px; border: none; background: none; color: var(--text-muted); font-size: 0.7rem; display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer; }
+        .tab-btn.active { color: var(--primary); font-weight: bold; }
+        .history-item { margin-bottom: 10px; border-left: 3px solid var(--primary); padding-left: 10px; }
+        .history-date { font-size: 0.72rem; color: var(--text-muted); }
+        .history-person { font-weight: bold; font-size: 0.88rem; }
+        .history-details { font-size: 0.82rem; margin-top: 2px; }
+        .checkbox-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-top: 8px; }
+        .checkbox-item { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; background: #f1f5f9; padding: 6px 8px; border-radius: 6px; }
+        .btn-action { background: var(--primary); color: white; border: none; padding: 8px 12px; border-radius: 6px; font-size: 0.8rem; font-weight: 600; cursor: pointer; width: 100%; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Magazzino Sportivo</h1>
+        <span id="sync-status" class="sync-badge">🔄 In sincronizzazione...</span>
+    </header>
+
+    <div class="container">
+        <!-- CONSEGNA -->
+        <div id="tab-consegna" class="tab-content active">
+            <div class="card" style="background: #eff6ff; border-color: #bfdbfe;">
+                <div class="form-group">
+                    <label for="sport-filter">⚽ Filtra per Sport / Disciplina:</label>
+                    <select id="sport-filter" class="form-control" onchange="renderConsegna()">
+                        <option value="ALL">Tutte le Discipline</option>
+                        <option value="Calcio">Calcio</option>
+                        <option value="Tai-Chi">Tai-Chi</option>
+                        <option value="Pilates">Pilates</option>
+                        <option value="Staff">Staff / Dirigenza</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom:0;">
+                    <label for="recipient-name">👤 Consegna materiale a:</label>
+                    <input type="text" id="recipient-name" class="form-control" placeholder="es. Mario Rossi" oninput="handleRecipientChange()">
+                </div>
+            </div>
+            <div class="card">
+                <h3>Seleziona Articoli da Consegnare</h3>
+                <div id="consegna-list" style="margin-top:10px;"></div>
+            </div>
+        </div>
+
+        <!-- GIACENZE -->
+        <div id="tab-giacenze" class="tab-content">
+            <div class="card">
+                <h3>⚙️ Correggi Giacenze</h3>
+                <div id="giacenze-list" style="margin-top:10px;"></div>
+            </div>
+        </div>
+
+        <!-- STORICO -->
+        <div id="tab-storico" class="tab-content">
+            <div class="card">
+                <h3>📋 Storico Consegne</h3>
+                <div id="historico-list" style="margin-top:10px;"></div>
+            </div>
+        </div>
+
+        <!-- IMPOSTAZIONI -->
+        <div id="tab-impostazioni" class="tab-content">
+            <div class="card">
+                <h3>🏆 Assegna Materiale alle Discipline</h3>
+                <div class="form-group">
+                    <label for="settings-sport-select">Seleziona Sport:</label>
+                    <select id="settings-sport-select" class="form-control" onchange="renderSportAssignments()">
+                        <option value="Calcio">Calcio</option>
+                        <option value="Tai-Chi">Tai-Chi</option>
+                        <option value="Pilates">Pilates</option>
+                        <option value="Staff">Staff / Dirigenza</option>
+                    </select>
+                </div>
+                <div id="sport-assignments" class="checkbox-grid"></div>
+                <button class="btn-action" style="margin-top:12px;" onclick="saveSportAssignments()">Salva Abbinamenti</button>
+            </div>
+        </div>
+    </div>
+
+    <nav class="nav-tabs">
+        <button class="tab-btn active" onclick="switchTab('consegna')">Consegna</button>
+        <button class="tab-btn" onclick="switchTab('giacenze')">Giacenze</button>
+        <button class="tab-btn" onclick="switchTab('storico')">Storico</button>
+        <button class="tab-btn" onclick="switchTab('impostazioni')">Impostazioni</button>
+    </nav>
+
+    <script>
+        // INSERISCI QUI IL TUO URL DI GOOGLE APPS SCRIPT
+        const GOOGLE_SCRIPT_URL = https://script.google.com/macros/s/AKfycbz7SWD-C2ySwecC0LHvUXIZGTS9B0q67Q6alDSe-Mw6ZxokIynF4H77d7-7MKPHfx3_/exec;
+
+        let inventory = [
+            { id: 1, name: "T-Shirt Adulto", size: "XS", qty: 15 },
+            { id: 2, name: "T-Shirt Adulto", size: "S", qty: 16 },
+            { id: 3, name: "T-Shirt Adulto", size: "M", qty: 16 },
+            { id: 4, name: "T-Shirt Adulto", size: "L", qty: 19 },
+            { id: 5, name: "T-Shirt Adulto", size: "XL", qty: 20 },
+            { id: 6, name: "Felpa Adulto", size: "M", qty: 10 },
+            { id: 7, name: "K-Way", size: "XL", qty: 12 },
+            { id: 8, name: "Calze Blu", size: "Unica", qty: 45 },
+            { id: 9, name: "Zaino", size: "Unica", qty: 19 }
+        ];
+
+        let historyLogs = [];
+        let sportAssignments = JSON.parse(localStorage.getItem('sportAssignments')) || {
+            "Calcio": ["T-Shirt Adulto", "Felpa Adulto", "K-Way", "Calze Blu", "Zaino"],
+            "Tai-Chi": ["T-Shirt Tai-Chi"],
+            "Pilates": ["Pile Pilates"]
+        };
+        let currentRecipient = "";
+
+        function loadFromCloud() {
+            if (GOOGLE_SCRIPT_URL.includes("INSERISCI_QUI")) return;
+            fetch(GOOGLE_SCRIPT_URL)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.inventory && data.inventory.length > 1) {
+                        inventory = data.inventory.slice(1).map(r => ({ id: r[0], name: r[1], size: r[2], qty: parseInt(r[3]) }));
+                    }
+                    if (data.history && data.history.length > 1) {
+                        historyLogs = data.history.slice(1).map(r => ({ id: r[0], date: r[1], person: r[2], item: r[3], qty: r[4] }));
+                    }
+                    document.getElementById("sync-status").innerText = "☁️ Sincronizzato";
+                    renderAll();
+                }).catch(() => {
+                    document.getElementById("sync-status").innerText = "⚠️ Offline";
+                });
+        }
+
+        function syncToCloud() {
+            if (GOOGLE_SCRIPT_URL.includes("INSERISCI_QUI")) return;
+            document.getElementById("sync-status").innerText = "⏳ Salvataggio...";
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                body: JSON.stringify({ inventory: inventory, historyLogs: historyLogs })
+            }).then(() => {
+                document.getElementById("sync-status").innerText = "☁️ Sincronizzato";
+            });
+        }
+
+        function deliverItem(id) {
+            if (!currentRecipient) return;
+            let item = inventory.find(i => i.id === id);
+            if (item && item.qty > 0) {
+                item.qty--;
+                let timestamp = new Date().toLocaleString('it-IT');
+                historyLogs.unshift({ id: Date.now(), date: timestamp, person: currentRecipient, item: `${item.name} (${item.size})`, qty: 1 });
+                renderAll();
+                syncToCloud();
+            }
+        }
+
+        function changeQty(id, delta) {
+            let item = inventory.find(i => i.id === id);
+            if (item) {
+                item.qty = Math.max(0, item.qty + delta);
+                renderAll();
+                syncToCloud();
+            }
+        }
+
+        function handleRecipientChange() {
+            currentRecipient = document.getElementById("recipient-name").value.trim();
+            renderConsegna();
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(`tab-${tabId}`).classList.add('active');
+            event.currentTarget.classList.add('active');
+            if(tabId === 'impostazioni') renderSportAssignments();
+            renderAll();
+        }
+
+        function renderConsegna() {
+            const container = document.getElementById("consegna-list");
+            const isDisabled = !currentRecipient;
+            const selectedSport = document.getElementById("sport-filter").value;
+
+            let filtered = inventory;
+            if (selectedSport !== "ALL" && sportAssignments[selectedSport]) {
+                filtered = inventory.filter(i => sportAssignments[selectedSport].includes(i.name));
+            }
+
+            container.innerHTML = filtered.map(item => `
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-title">${item.name}</div>
+                        <div class="item-subtitle">Taglia: ${item.size} | Giacenza: <strong>${item.qty}</strong></div>
+                    </div>
+                    <div class="qty-controls">
+                        <button class="btn-qty minus" ${isDisabled || item.qty <= 0 ? 'disabled' : ''} onclick="deliverItem(${item.id})">−</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderGiacenze() {
+            document.getElementById("giacenze-list").innerHTML = inventory.map(item => `
+                <div class="item-row">
+                    <div class="item-info">
+                        <div class="item-title">${item.name} (${item.size})</div>
+                    </div>
+                    <div class="qty-controls">
+                        <button class="btn-qty" onclick="changeQty(${item.id}, -1)">-</button>
+                        <span style="font-weight:bold; width:30px; text-align:center;">${item.qty}</span>
+                        <button class="btn-qty" onclick="changeQty(${item.id}, 1)">+</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderStorico() {
+            document.getElementById("historico-list").innerHTML = historyLogs.length === 0 ? '<p style="color:var(--text-muted); font-size:0.85rem;">Nessuna consegna.</p>' :
+                historyLogs.map(log => `
+                <div class="history-item">
+                    <div class="history-person">${log.person}</div>
+                    <div class="history-details">• ${log.qty}x ${log.item}</div>
+                    <div class="history-date">${log.date}</div>
+                </div>
+            `).join('');
+        }
+
+        function renderSportAssignments() {
+            const selectedSport = document.getElementById("settings-sport-select").value;
+            const container = document.getElementById("sport-assignments");
+            const uniqueNames = [...new Set(inventory.map(i => i.name))];
+            const currentItems = sportAssignments[selectedSport] || [];
+
+            container.innerHTML = uniqueNames.map(pName => `
+                <label class="checkbox-item">
+                    <input type="checkbox" value="${pName}" ${currentItems.includes(pName) ? 'checked' : ''}>
+                    ${pName}
+                </label>
+            `).join('');
+        }
+
+        function saveSportAssignments() {
+            const selectedSport = document.getElementById("settings-sport-select").value;
+            const checkboxes = document.querySelectorAll("#sport-assignments input[type='checkbox']:checked");
+            sportAssignments[selectedSport] = Array.from(checkboxes).map(cb => cb.value);
+            localStorage.setItem('sportAssignments', JSON.stringify(sportAssignments));
+            alert("Abbinamenti salvati!");
+        }
+
+        function renderAll() {
+            renderConsegna();
+            renderGiacenze();
+            renderStorico();
+        }
+
+        loadFromCloud();
+    </script>
+</body>
+</html>
