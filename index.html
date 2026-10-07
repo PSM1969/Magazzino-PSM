@@ -776,6 +776,13 @@
         function renderGiacenze() {
             const container = document.getElementById("giacenze-list");
             
+            // 1. Salva i titoli dei menu attualmente APERTI prima del ridisegno
+            const openDetails = [];
+            container.querySelectorAll("details[open]").forEach(d => {
+                const summaryText = d.querySelector("summary")?.innerText.trim();
+                if (summaryText) openDetails.push(summaryText);
+            });
+
             const groups = {
                 "👕 T-Shirt & Polo": function(item) { return item.name.toLowerCase().includes("t-shirt") || item.name.toLowerCase().includes("polo"); },
                 "🩳 Pantaloni & Bermuda": function(item) { return item.name.toLowerCase().includes("panta") || item.name.toLowerCase().includes("bermuda"); },
@@ -798,20 +805,28 @@
                 });
 
                 if (groupItems.length > 0) {
-                    html += '<details style="margin-bottom: 12px; border: 2px solid var(--border); border-radius: 10px; background: white; padding: 8px 12px;">' +
+                    // Controlla se questa sezione era aperta prima della modifica
+                    const isGroupOpen = openDetails.some(title => title.includes(groupTitle));
+                    const openAttribute = isGroupOpen ? 'open' : '';
+
+                    html += '<details ' + openAttribute + ' style="margin-bottom: 12px; border: 2px solid var(--border); border-radius: 10px; background: white; padding: 8px 12px;">' +
                         '<summary style="font-weight: 800; font-size: 1.15rem; color: var(--primary); cursor: pointer; padding: 6px 0;">' +
                             groupTitle + ' (' + groupItems.length + ')' +
                         '</summary>' +
                         '<div style="margin-top: 8px; border-top: 1px solid var(--border); padding-top: 6px;">' +
                             groupItems.map(item => {
-                                let minThreshold = MIN_STOCK_THRESHOLDS[item.name] || 0;
-                                let isUnderMin = item.qty < minThreshold;
-                                let rowClass = isUnderMin ? 'item-row min-alert' : 'item-row';
-                                let badgeHtml = isUnderMin ? '<span class="badge badge-danger" style="margin-left:6px;">Sotto scorta (&lt;' + minThreshold + ')</span>' : '';
+                                // Calcola la scorta minima specifica per articolo e taglia
+                                let minThreshold = 0;
+                                if (typeof MIN_STOCK_THRESHOLDS !== 'undefined' && MIN_STOCK_THRESHOLDS[item.name] && MIN_STOCK_THRESHOLDS[item.name][item.size] !== undefined) {
+                                    minThreshold = MIN_STOCK_THRESHOLDS[item.name][item.size];
+                                }
+                                let isLowStock = minThreshold > 0 && item.qty < minThreshold;
 
-                                return '<div class="' + rowClass + '" style="padding: 6px 8px; border-radius: 6px; margin-bottom: 4px;">' +
+                                return '<div class="item-row">' +
                                     '<div class="item-info">' +
-                                        '<div class="item-title">' + item.name + ' (' + item.size + ')' + badgeHtml + '</div>' +
+                                        '<div class="item-title">' + item.name + ' (' + item.size + ')' +
+                                            (isLowStock ? ' <span class="badge badge-warning" style="color:#ef4444; background:#fee2e2;">⚠️ Sotto scorta (< ' + minThreshold + ' pz)</span>' : '') +
+                                        '</div>' +
                                     '</div>' +
                                     '<div class="qty-controls">' +
                                         '<button class="btn-qty" onclick="changeQty(' + item.id + ', -1)">-</button>' +
