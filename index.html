@@ -166,6 +166,13 @@ details.group > summary { font-weight: 800; font-size: 1.15rem; cursor: pointer;
       <div id="sport-assignments" class="checkbox-grid"></div>
       <button class="btn-action" style="margin-top:16px;" onclick="saveSportAssignments()">SALVA ABBINAMENTI SPORT</button>
     </div>
+    <div class="card">
+  <h2 class="section-title">📥 ESPORTA DATI</h2>
+  <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px;">
+    Scarica un file Excel con Giacenza, Ordini e Storico consegne aggiornati.
+  </p>
+  <button class="btn-action" style="background:#10b981;" onclick="exportToExcel()">📥 SCARICA EXCEL</button>
+</div>
   </div>
 
 </div>
@@ -692,7 +699,60 @@ function saveSportAssignments() {
   localStorage.setItem('sportAssignments', JSON.stringify(sportAssignments));
   alert("Abbinamenti salvati per " + selectedSport);
 }
+function makeSheet(rows, widths) {
+  const ws = XLSX.utils.aoa_to_sheet(rows);
+  ws['!cols'] = widths.map(w => ({ wch: w }));   // larghezza colonne
+  ws['!autofilter'] = { ref: ws['!ref'] };       // filtri sulla riga di intestazione
+  return ws;
+}
 
+function exportToExcel() {
+  if (typeof XLSX === 'undefined') {
+    alert("Libreria Excel non caricata. Controlla la connessione a Internet e ricarica la pagina.");
+    return;
+  }
+
+  // --- Foglio 1: Giacenza ---
+  const giacenza = [["Articolo", "Taglia", "Quantità", "Scorta minima", "Stato"]];
+  inventory.forEach(i => {
+    const min = getMinThreshold(i.name, i.size);
+    giacenza.push([
+      i.name,
+      i.size,
+      i.qty,
+      min > 0 ? min : "",
+      min > 0 && i.qty < min ? "SOTTO SCORTA" : "OK"
+    ]);
+  });
+
+  // --- Foglio 2: Ordini ---
+  const ordini = [["Articolo", "Taglia", "Quantità", "Stato"]];
+  orders.forEach(o => {
+    ordini.push([o.name, o.size, o.qty, o.type === 'incoming' ? "In arrivo" : "Da ordinare"]);
+  });
+
+  // --- Foglio 3: Storico consegne ---
+  const storico = [["Data e ora", "Consegnato a", "Articolo", "Taglia", "Quantità"]];
+  historyLogs.forEach(log => {
+    // "T-Shirt Adulto (M)" -> articolo "T-Shirt Adulto", taglia "M"
+    const m = String(log.item).match(/^(.*) \(([^()]*)\)$/);
+    storico.push([
+      log.date,
+      log.person,
+      m ? m[1] : log.item,
+      m ? m[2] : "",
+      Number(log.qty) || 1
+    ]);
+  });
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, makeSheet(giacenza, [24, 16, 10, 14, 16]), "Giacenza");
+  XLSX.utils.book_append_sheet(wb, makeSheet(ordini,   [24, 16, 10, 14]),     "Ordini");
+  XLSX.utils.book_append_sheet(wb, makeSheet(storico,  [22, 24, 24, 16, 10]), "Storico consegne");
+
+  const oggi = new Date().toLocaleDateString('sv-SE');   // formato AAAA-MM-GG, ora locale
+  XLSX.writeFile(wb, "Magazzino_" + oggi + ".xlsx");
+}
 function renderAll() {
   renderConsegna();
   renderGiacenze();
