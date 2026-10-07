@@ -241,6 +241,7 @@
                         <option value="Pallavolo">Pallavolo</option>
                         <option value="Minivolley">Minivolley</option>
                         <option value="Atletica">Atletica</option>
+                        <option value="Atletica Master">Atletica Master</option>
                         <option value="Danza">Danza</option>
                         <option value="Pilates">Pilates</option>
                         <option value="Tai Chi">Tai Chi</option>
@@ -345,6 +346,7 @@
                         <option value="Pallavolo">Pallavolo</option>
                         <option value="Minivolley">Minivolley</option>
                         <option value="Atletica">Atletica</option>
+                        <option value="Atletica Master">Atletica Master</option>
                         <option value="Danza">Danza</option>
                         <option value="Pilates">Pilates</option>
                         <option value="Tai Chi">Tai Chi</option>
@@ -571,12 +573,13 @@
         let inventory = defaultInventory;
         let historyLogs = [];
         let sportAssignments = JSON.parse(localStorage.getItem('sportAssignments')) || {
-            "Calcio": ["T-Shirt Adulto", "Felpa Adulto", "Tuta Completa", "Panta Uomo", "Bermuda Uomo", "K-Way", "Calze Blu", "Calze Azzurre", "Zaino", "Borsa Media"],
-            "Pallavolo": ["T-Shirt Adulto", "Felpa Adulto", "Tuta Completa", "K-Way", "Zaino"],
-            "Minivolley": ["T-Shirt Bimbo", "Felpa Bimbo", "Zaino"],
-            "Atletica": ["T-Shirt Adulto", "Panta Uomo", "Panta Donna", "K-Way"],
-            "Danza": ["T-Shirt Bimbo", "Panta Donna"],
-            "Pilates": ["Pile Pilates"],
+            "Calcio": ["T-Shirt Bimbo", "T-Shirt Adulto", "Felpa Adulto", "Tuta Completa", "Panta Uomo", "K-Way", "Calze Blu", "Calze Azzurre", "Zaino", "Borsa Media"],
+            "Pallavolo": ["T-Shirt Bimbo", "T-Shirt Adulto", "Felpa Adulto", "Panta Donna", "Panta Uomo", "Tuta Completa", "Zaino"],
+            "Minivolley": ["T-Shirt Bimbo", "Panta Donna", "Tuta Completa", "Zaino"],
+            "Atletica": ["T-Shirt Adulto", "T-Shirt Bimbo", "Tuta Completa", "Zaino"],
+            "Atletica Master": ["Tuta Completa"],
+            "Danza": ["Tuta Completa"],
+            "Pilates": ["T-Shirt Adulto", "Pile Pilates"],
             "Tai Chi": ["T-Shirt Tai-Chi", "Pile Tai-Chi"]
         };
         let currentRecipient = "";
