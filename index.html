@@ -56,6 +56,16 @@ header h1 { font-size: 1.4rem; font-weight: 800; letter-spacing: -0.5px; }
 details.group { margin-bottom: 12px; border: 2px solid var(--border); border-radius: 10px; background: white; padding: 8px 12px; }
 details.group > summary { font-weight: 800; font-size: 1.15rem; cursor: pointer; padding: 6px 0; }
 .group-body { margin-top: 8px; border-top: 1px solid var(--border); padding-top: 6px; }
+.btn-action:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-qty.plus { color: var(--success); border-color: #6ee7b7; }
+.item-row.selected { background: #ecfdf5; border-radius: 8px; padding: 12px 8px; }
+.person-card { margin-bottom: 12px; border: 2px solid var(--border); border-radius: 10px; background: white; padding: 8px 12px; }
+.person-card > summary { cursor: pointer; padding: 6px 0; display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.person-name { font-weight: 800; font-size: 1.15rem; color: var(--text-main); }
+.person-meta { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
+.hist-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 0; border-top: 1px solid var(--border); }
+.hist-article { font-weight: 800; color: var(--text-main); }
+.size-chip { display: inline-block; background: #e0f2fe; color: #0369a1; border-radius: 12px; padding: 4px 10px; font-weight: 800; font-size: 0.9rem; margin-left: 4px; }
 </style>
 </head>
 <body>
@@ -87,7 +97,13 @@ details.group > summary { font-weight: 800; font-size: 1.15rem; cursor: pointer;
       <p style="font-size: 0.9rem; color: var(--text-muted); margin-bottom: 12px;">
         Inserisci un nome in alto per attivare i pulsanti <strong>−</strong> e registrare la consegna.
       </p>
-      <div id="consegna-list"></div>
+            <div id="consegna-list"></div>
+    </div>
+    <div class="card">
+      <h2 class="section-title">RIEPILOGO</h2>
+      <div id="cart-summary"></div>
+      <button id="confirm-btn" class="btn-action" style="background:#10b981; margin-top:14px;" onclick="confirmDelivery()" disabled>✅ CONFERMA CONSEGNA</button>
+      <button class="btn-action" style="background:#94a3b8; margin-top:10px;" onclick="clearCart()">Svuota selezione</button>
     </div>
   </div>
 
@@ -151,6 +167,7 @@ details.group > summary { font-weight: 800; font-size: 1.15rem; cursor: pointer;
   <div id="tab-storico" class="tab-content">
     <div class="card">
       <h2 class="section-title">STORICO CONSEGNE</h2>
+      <input type="text" id="storico-search" class="form-control" placeholder="🔍 Cerca per nome..." oninput="renderStorico()" style="margin-bottom:14px;">
       <div id="historico-list"></div>
     </div>
   </div>
@@ -297,7 +314,9 @@ let historyLogs = [];
 let sportAssignments = Object.assign({}, defaultSportAssignments, loadJSON('sportAssignments', {}));
 let currentRecipient = "";
 let cloudLoaded = false;   // true solo dopo aver letto con successo i dati dal cloud
-
+let cart = {};               // selezione in corso: { idArticolo: quantità }
+let closedPeople = new Set(); // schede dello storico chiuse dall'utente
+  
 function initSports() {
   const opts = SPORTS.map(s => '<option value="' + escapeHtml(s) + '">' + escapeHtml(s) + '</option>').join('');
   $("sport-filter").innerHTML = '<option value="ALL">Tutte le Discipline</option>' + opts;
@@ -391,16 +410,67 @@ function syncToCloud() {
   });
 }
 
-function deliverItem(id) {
+function changeCart(id, delta) {
   if (!currentRecipient) return;
   const item = inventory.find(i => i.id === id);
-  if (item && item.qty > 0) {
-    item.qty--;
-    const timestamp = new Date().toLocaleString('it-IT');
-    historyLogs.unshift({ id: Date.now(), date: timestamp, person: currentRecipient, item: item.name + ' (' + item.size + ')', qty: 1 });
-    renderAll();
-    syncToCloud();
-  }
+  if (!item) return;
+  const next = Math.min(item.qty, Math.max(0, (cart[id] || 0) + delta));
+  if (next === 0) delete cart[id]; else cart[id] = next;
+  renderConsegna();
+}
+
+function clearCart() {
+  cart = {};
+  renderConsegna();
+}
+
+function getCartEntries() {
+  return Object.keys(cart)
+    .map(id => ({ item: inventory.find(i => i.id === Number(id)), qty: cart[id] }))
+    .filter(e => e.item && e.qty > 0);
+}
+
+function renderCartSummary() {
+  const entries = getCartEntries();
+  const total = entries.reduce((s, e) => s + e.qty, 0);
+  $("cart-summary").innerHTML = entries.length === 0
+    ? '<p style="color:var(--text-muted); font-size:0.95rem;">Nessun materiale selezionato.</p>'
+    : entries.map(e =>
+        '<div class="item-row"><div class="item-title">' + escapeHtml(e.item.name) +
+        ' <span class="badge badge-info">' + escapeHtml(e.item.size) + '</span></div>' +
+        '<strong>× ' + e.qty + '</strong></div>').join('');
+  const btn = $("confirm-btn");
+  btn.disabled = !currentRecipient || total === 0;
+  btn.innerText = total ? '✅ CONFERMA CONSEGNA (' + total + ' pz)' : '✅ CONFERMA CONSEGNA';
+}
+
+function confirmDelivery() {
+  if (!currentRecipient) { alert("Inserisci prima nome e cognome."); return; }
+  const entries = getCartEntries();
+  if (entries.length === 0) { alert("Nessun materiale selezionato."); return; }
+
+  const timestamp = new Date().toLocaleString('it-IT');
+  const base = Date.now();
+  const newLogs = [];
+  entries.forEach((e, idx) => {
+    const qty = Math.min(e.qty, e.item.qty);   // sicurezza: mai sotto zero
+    if (qty <= 0) return;
+    e.item.qty -= qty;
+    newLogs.push({ id: base + idx, date: timestamp, person: currentRecipient, item: e.item.name + ' (' + e.item.size + ')', qty: qty });
+  });
+  historyLogs = newLogs.concat(historyLogs);
+
+  const who = currentRecipient;
+  // reset della pagina
+  cart = {};
+  currentRecipient = "";
+  $("recipient-name").value = "";
+  $("sport-filter").value = "ALL";
+  $("consegna-list").innerHTML = "";
+  renderAll();
+  window.scrollTo({ top: 0 });
+  syncToCloud();
+  alert("Consegna registrata per " + who);
 }
 
 function changeQty(id, delta) {
@@ -456,8 +526,8 @@ function renderConsegna() {
   const selectedSport = $("sport-filter").value;
 
   $("calcio-alert").style.display = selectedSport === "Calcio" ? "flex" : "none";
+  renderCartSummary();
 
-  // Ricorda quali prodotti erano aperti, così non si richiudono a ogni consegna
   const openProducts = new Set();
   container.querySelectorAll("details[open]").forEach(d => {
     if (d.dataset.product) openProducts.add(d.dataset.product);
@@ -482,36 +552,32 @@ function renderConsegna() {
   container.innerHTML = Object.keys(grouped).map(productName => {
     const items = grouped[productName];
     const totalQty = items.reduce((sum, i) => sum + i.qty, 0);
+    const selQty = items.reduce((sum, i) => sum + (cart[i.id] || 0), 0);
     return '<details class="group" data-product="' + escapeHtml(productName) + '"' + (openProducts.has(productName) ? ' open' : '') + '>' +
       '<summary style="color: var(--text-main); display: flex; justify-content: space-between; align-items: center;">' +
         '<span>👕 ' + escapeHtml(productName) + '</span>' +
-        '<span style="font-size: 0.9rem; font-weight: 700; color: var(--primary);">Totale pz: ' + totalQty + '</span>' +
+        '<span style="font-size: 0.9rem; font-weight: 700; color: var(--primary);">' +
+          (selQty ? '<span class="badge badge-info">Selezionati: ' + selQty + '</span> ' : '') +
+          'Totale pz: ' + totalQty + '</span>' +
       '</summary>' +
       '<div class="group-body">' +
-      items.map(item =>
-        '<div class="item-row">' +
+      items.map(item => {
+        const sel = cart[item.id] || 0;
+        return '<div class="item-row' + (sel > 0 ? ' selected' : '') + '">' +
           '<div class="item-info">' +
             '<div class="item-title">Taglia: ' + escapeHtml(item.size) + '</div>' +
             '<div class="item-subtitle">Disponibili: <strong>' + item.qty + '</strong></div>' +
           '</div>' +
           '<div class="qty-controls">' +
-            '<button class="btn-qty minus" ' + (isDisabled || item.qty <= 0 ? 'disabled' : '') + ' onclick="deliverItem(' + item.id + ')">−</button>' +
+            '<button class="btn-qty minus" ' + (isDisabled || sel <= 0 ? 'disabled' : '') + ' onclick="changeCart(' + item.id + ', -1)">−</button>' +
+            '<span class="qty-input" style="display:flex; align-items:center; justify-content:center;">' + sel + '</span>' +
+            '<button class="btn-qty plus" ' + (isDisabled || sel >= item.qty ? 'disabled' : '') + ' onclick="changeCart(' + item.id + ', 1)">+</button>' +
           '</div>' +
-        '</div>'
-      ).join('') +
+        '</div>';
+      }).join('') +
       '</div></details>';
   }).join('');
 }
-
-const GROUPS = [
-  ["👕 T-Shirt & Polo", /t-shirt|polo/],
-  ["🩳 Pantaloni & Bermuda", /panta|bermuda/],
-  ["🧥 Felpe & Pile", /felpa|pile/],
-  ["🏃 Tute", /tuta/],
-  ["🌧️ K-Way & Giacche", /k-way|giacca/],
-  ["🎒 Accessori & Borse", /calze|zaino|borsa/],
-  ["📦 Altro", /./]
-];
 
 function renderGiacenze() {
   const container = $("giacenze-list");
@@ -667,18 +733,51 @@ function renderOrdini() {
       ).join('');
 }
 
+function toggleHist(el) {
+  if (el.open) closedPeople.delete(el.dataset.person); else closedPeople.add(el.dataset.person);
+}
+function normName(s) { return String(s || "").trim().replace(/\s+/g, " ").toLowerCase(); }
+
 function renderStorico() {
-  $("historico-list").innerHTML = historyLogs.length === 0
-    ? '<p style="color:var(--text-muted); font-size:0.9rem;">Nessuna consegna effettuata.</p>'
-    : historyLogs.map(log =>
-        '<div class="history-item">' +
-          '<div class="history-person">' + escapeHtml(log.person) + '</div>' +
-          '<div class="history-details">• ' + escapeHtml(log.qty) + 'x ' + escapeHtml(log.item) + '</div>' +
-          '<div class="history-date">' + escapeHtml(log.date) + '</div>' +
-        '</div>'
+  const q = normName($("storico-search").value);
+  const people = new Map();   // ordine = persona con la consegna più recente per prima
+
+  historyLogs.forEach(log => {
+    const key = normName(log.person) || "(senza nome)";
+    if (!people.has(key)) {
+      people.set(key, { name: String(log.person || "").trim() || "(senza nome)", lastDate: log.date, total: 0, items: new Map() });
+    }
+    const p = people.get(key);
+    const m = String(log.item).match(/^(.*) \(([^()]*)\)$/);
+    const article = m ? m[1] : String(log.item);
+    const size = m ? m[2] : "—";
+    const qty = Number(log.qty) || 1;
+    if (!p.items.has(article)) p.items.set(article, new Map());
+    const sizes = p.items.get(article);
+    sizes.set(size, (sizes.get(size) || 0) + qty);
+    p.total += qty;
+  });
+
+  const list = [...people.entries()].filter(([key]) => key.includes(q));
+  $("historico-list").innerHTML = list.length === 0
+    ? '<p style="color:var(--text-muted); font-size:0.9rem;">' + (historyLogs.length ? 'Nessun risultato.' : 'Nessuna consegna effettuata.') + '</p>'
+    : list.map(([key, p]) =>
+        '<details class="person-card" data-person="' + escapeHtml(key) + '"' + (closedPeople.has(key) ? '' : ' open') + ' ontoggle="toggleHist(this)">' +
+          '<summary>' +
+            '<span class="person-name">👤 ' + escapeHtml(p.name) + '</span>' +
+            '<span class="person-meta">' + p.total + ' pz · ultima: ' + escapeHtml(String(p.lastDate).split(',')[0]) + '</span>' +
+          '</summary>' +
+          [...p.items.entries()].map(([article, sizes]) =>
+            '<div class="hist-row">' +
+              '<span class="hist-article">' + escapeHtml(article) + '</span>' +
+              '<span>' + [...sizes.entries()].map(([sz, n]) =>
+                '<span class="size-chip">' + escapeHtml(sz) + (n > 1 ? ' ×' + n : '') + '</span>').join('') + '</span>' +
+            '</div>'
+          ).join('') +
+        '</details>'
       ).join('');
 }
-
+  
 function renderSportAssignments() {
   const selectedSport = $("settings-sport-select").value;
   const uniqueNames = [...new Set(inventory.map(i => i.name))];
