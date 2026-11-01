@@ -520,6 +520,16 @@ function switchTab(tabId, evt) {
   renderAll();
 }
 
+const GROUPS = [
+  ["👕 T-Shirt & Polo", /t-shirt|polo/],
+  ["🩳 Pantaloni & Bermuda", /panta|bermuda/],
+  ["🧥 Felpe & Pile", /felpa|pile/],
+  ["🏃 Tute", /tuta/],
+  ["🌧️ K-Way & Giacche", /k-way|giacca/],
+  ["🎒 Accessori & Borse", /calze|zaino|borsa/],
+  ["📦 Altro", /./]
+];
+  
 function renderConsegna() {
   const container = $("consegna-list");
   const isDisabled = !currentRecipient;
